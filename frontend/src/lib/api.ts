@@ -446,6 +446,7 @@ api.request = (async function <T = any, R = AxiosResponse<T>, D = any>(
 // Request interceptor
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    if (config.url?.startsWith('/ai-chat/') && config.method?.toLowerCase() === 'post') config.timeout = 150000;
     try {
       // Don't add token for public endpoints to avoid 401s from stale tokens
       const isPublicEndpoint =

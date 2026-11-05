@@ -28,6 +28,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
     text: string;
   } | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [managedCodex, setManagedCodex] = useState(false);
 
   // Load settings when modal opens
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
     try {
       const settings: Setting[] = await settingsApi.getAll("ai");
 
+      setManagedCodex(settings.some(setting => setting.key === 'ai_transport' && setting.value === 'codex-cli'));
       settings.forEach((setting) => {
         switch (setting.key) {
           case "ai_enabled":
@@ -97,7 +99,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
 
     try {
       // Use bulk save to make a single API call instead of 4 separate calls
-      await settingsApi.bulkSetSettings([
+      const settings = [
         {
           key: "ai_enabled",
           value: isEnabled.toString(),
@@ -126,7 +128,8 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
           category: "ai",
           isEncrypted: false,
         },
-      ]);
+      ];
+      await settingsApi.bulkSetSettings(managedCodex ? settings.filter(setting => setting.key === 'ai_enabled') : settings);
 
       localStorage.setItem("aiEnabled", isEnabled.toString());
       window.dispatchEvent(
@@ -163,6 +166,15 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
   };
 
   const testConnection = async () => {
+    if (managedCodex) {
+      setIsLoading(true);
+      try {
+        const response = await api.post('/ai-chat/test-connection', { apiKey: '', model: 'managed', apiUrl: 'managed' });
+        setMessage(response.data.success ? { type: 'success', text: 'Conexión con Codex disponible.' } : { type: 'error', text: response.data.error });
+      } catch { setMessage({ type: 'error', text: 'No se pudo comprobar la conexión con Codex.' }); }
+      finally { setIsLoading(false); }
+      return;
+    }
     // API key is optional for localhost/private network (Ollama)
     const isLocalNetwork = isLocalOrPrivateUrl(apiUrl);
     if (!apiKey && !isLocalNetwork) {
@@ -222,11 +234,11 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
   };
 
   // Form is valid if model and URL are set, and either API key is set or it's a local/private URL
-  const isFormValid = isEnabled
+  const isFormValid = managedCodex || (isEnabled
     ? (apiKey.trim().length > 0 || isLocalOrPrivateUrl(apiUrl)) &&
       model.trim().length > 0 &&
       apiUrl.trim().length > 0
-    : true;
+    : true);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -240,7 +252,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
               <DialogTitle className="projects-modal-title">
                 {t("ai_section.title")}
               </DialogTitle>
-              <p className="projects-modal-description">{t("ai_section.description")}</p>
+              <p className="projects-modal-description">{managedCodex ? 'Asistente de IA de iqualitys' : t("ai_section.description")}</p>
             </div>
           </div>
         </DialogHeader>
@@ -248,6 +260,8 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
         <div className="space-y-2">
           {/* Configuration Fields - Always visible */}
           {/* API Key */}
+          {managedCodex && <p className="projects-modal-description">La IA usa Codex administrado por iqualitys. No necesitas una clave API. La comprobación de conexión utiliza parte del presupuesto disponible.</p>}
+          {!managedCodex && <>
           <div className="space-y-2">
             <Label
               htmlFor="api-key"
@@ -372,6 +386,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
               }}
             />
           </div>
+          </>}
           <div className="projects-form-field">
             <div className="flex  items-center justify-between p-4 bg-[var(--mini-sidebar)] rounded-lg ">
               <div>
@@ -386,7 +401,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
                   {t("ai_section.enable_chat")}
                 </Label>
                 <p className="projects-url-preview-label text-[13px] mt-1 ml-6">
-                  {t("ai_section.enable_chat_desc")}
+                  {managedCodex ? 'Activa o desactiva el asistente para tu cuenta.' : t("ai_section.enable_chat_desc")}
                 </p>
               </div>
 
@@ -401,9 +416,9 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
                   disabled={
                     isLoading ||
                     isSaving ||
-                    (!apiKey.trim() && !isLocalOrPrivateUrl(apiUrl)) ||
+                    (!managedCodex && ((!apiKey.trim() && !isLocalOrPrivateUrl(apiUrl)) ||
                     !model.trim() ||
-                    !apiUrl.trim()
+                    !apiUrl.trim()))
                   }
                   className="sr-only peer"
                 />
@@ -419,7 +434,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
 
           {/* Setup Guide & Providers - Always visible */}
 
-          <div className="mt-4 p-3 bg-[var(--border)] rounded-lg">
+          {!managedCodex && <div className="mt-4 p-3 bg-[var(--border)] rounded-lg">
             <h3 className="projects-url-preview-label mb-2 text-[14px]">
               {t("ai_section.popular_providers")}
             </h3>
@@ -453,7 +468,7 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
             <p className="text-xs" style={{ fontSize: "13px" }}>
               {t("ai_section.footer_info")}
             </p>
-          </div>
+          </div>}
 
           {/* Action Buttons */}
           <div className="projects-form-actions flex gap-2 justify-end mt-6">
@@ -472,9 +487,9 @@ export default function AISettingsModal({ isOpen, onClose }: AISettingsModalProp
               disabled={
                 isLoading ||
                 isSaving ||
-                (!apiKey.trim() && !isLocalOrPrivateUrl(apiUrl)) ||
+                (!managedCodex && ((!apiKey.trim() && !isLocalOrPrivateUrl(apiUrl)) ||
                 !model.trim() ||
-                !apiUrl.trim()
+                !apiUrl.trim()))
               }
               variant="outline"
               secondary

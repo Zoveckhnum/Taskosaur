@@ -16,6 +16,8 @@ export class SettingsService {
    * @param defaultValue Default value if setting is not found
    */
   async get(key: string, userId?: string, defaultValue?: string): Promise<string | null> {
+    if (key === 'ai_transport') return process.env.AI_TRANSPORT || 'http';
+    if (key === 'ai_enabled' && process.env.AI_TRANSPORT === 'codex-cli') defaultValue ??= 'true';
     // First try to get user-specific setting
     if (userId) {
       const userSetting = await this.prisma.settings.findUnique({
@@ -219,7 +221,27 @@ export class SettingsService {
     }));
 
     // Combine user-specific and global settings (user-specific take precedence)
-    return [...userSettingsWithFlag, ...globalSettingsWithFlag];
+    const result = [...userSettingsWithFlag, ...globalSettingsWithFlag];
+    if ((!category || category === 'ai') && process.env.AI_TRANSPORT === 'codex-cli') {
+      result.push({
+        key: 'ai_transport',
+        value: 'codex-cli',
+        description: 'Proveedor administrado por iqualitys',
+        category: 'ai',
+        isEncrypted: false,
+        isUserSpecific: false,
+      });
+      if (!result.some((setting) => setting.key === 'ai_enabled'))
+        result.push({
+          key: 'ai_enabled',
+          value: 'true',
+          description: null,
+          category: 'ai',
+          isEncrypted: false,
+          isUserSpecific: false,
+        });
+    }
+    return result;
   }
 
   /**

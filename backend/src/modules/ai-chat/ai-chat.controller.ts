@@ -81,8 +81,9 @@ export class AiChatController {
   @ApiResponse({ status: 200, type: TestConnectionResponseDto })
   async testConnection(
     @Body() testConnectionDto: TestConnectionDto,
+    @CurrentUser() user: User,
   ): Promise<TestConnectionResponseDto> {
-    return this.aiChatService.testConnection(testConnectionDto);
+    return this.aiChatService.testConnection(testConnectionDto, user.id);
   }
 
   @Post('generate-description')

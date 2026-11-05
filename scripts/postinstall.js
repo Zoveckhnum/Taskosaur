@@ -38,6 +38,7 @@ function isCI() {
 }
 
 console.log('\n📦 Running postinstall for Taskosaur platform...\n');
+runCommand('npm run prisma:generate --workspace=backend');
 
 // Skip husky setup in CI environments or if .git doesn't exist
 const gitDir = path.join(__dirname, '..', '.git');

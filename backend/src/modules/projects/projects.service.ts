@@ -1382,14 +1382,18 @@ export class ProjectsService {
       return { status: 'exact', slug: exact.slug };
     }
     // 2. Fuzzy match
-    const fuzzy = await this.prisma.$queryRawUnsafe<{ slug: string; score: number }[]>(
-      `
+    const fuzzy = process.env.DATABASE_URL?.startsWith('sqlserver://')
+      ? await this.prisma.$queryRaw<{ slug: string; score: number }[]>`
+          SELECT TOP (3) slug, CAST(DIFFERENCE(slug, ${aiSlug}) AS FLOAT) / 4 AS score
+          FROM projects ORDER BY score DESC`
+      : await this.prisma.$queryRawUnsafe<{ slug: string; score: number }[]>(
+          `
       SELECT slug, similarity(slug, $1) AS score
       FROM "projects"
       ORDER BY score DESC
       LIMIT 3`,
-      aiSlug,
-    );
+          aiSlug,
+        );
 
     if (fuzzy.length > 0 && fuzzy[0].score >= 0.4) {
       return { status: 'fuzzy', slug: fuzzy[0].slug, score: fuzzy[0].score };

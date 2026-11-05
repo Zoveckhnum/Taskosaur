@@ -3367,7 +3367,7 @@ export class TasksService {
             AND tr.view_type = 'BOARD'::"ViewType"
           WHERE t.status_id = ${status.id}::uuid
             AND t.project_id = ${project.id}::uuid
-            ${sprintId ? Prisma.raw(`AND t.sprint_id = '${sprintId}'::uuid`) : Prisma.empty}
+            ${sprintId ? Prisma.sql`AND t.sprint_id = ${sprintId}::uuid` : Prisma.empty}
             ${!includeSubtasks ? Prisma.raw('AND t.parent_task_id IS NULL') : Prisma.empty}
           ORDER BY tr.rank DESC NULLS LAST, t.created_at DESC
           LIMIT ${Prisma.raw(pageLimit.toString())}

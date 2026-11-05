@@ -1,0 +1,33 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { createHash } = require('node:crypto');
+const { execFileSync } = require('node:child_process');
+const root = path.join(__dirname, '..');
+const output = path.resolve(process.argv[2] || path.join(root, '.local/iis-artifact'));
+const localRoot = path.join(root, '.local');
+const directoryBytes = directory => fs.readdirSync(directory, { withFileTypes: true }).reduce((total, entry) => {
+  const file = path.join(directory, entry.name);
+  if (entry.isSymbolicLink()) throw new Error('Artifact storage must not contain links');
+  return total + (entry.isDirectory() ? directoryBytes(file) : fs.statSync(file).size);
+}, 0);
+if (fs.existsSync(localRoot) && directoryBytes(localRoot) > 1024 ** 3) throw new Error('Local artifacts exceed 1 GiB; review old artifacts before packaging another version');
+const disk = fs.statfsSync(root);
+if (disk.bavail * disk.bsize < 11 * 1024 ** 3) throw new Error('Packaging requires 11 GiB free to preserve runtime headroom');
+if (!output.startsWith(path.join(root, '.local') + path.sep)) throw new Error('Artifacts must be inside the repository .local directory');
+if (fs.existsSync(output)) throw new Error('Artifact already exists; choose a new release directory');
+for (const file of ['backend/dist/main.js', 'backend/dist/sqlserver/index.js', 'frontend/out/index.html']) if (!fs.existsSync(path.join(root, file))) throw new Error('Run npm run build first: missing ' + file);
+fs.mkdirSync(output, { recursive: true });
+fs.cpSync(path.join(root, 'backend/dist/main.js'), path.join(output, 'main.js'));
+fs.cpSync(path.join(root, 'backend/dist/sqlserver'), path.join(output, 'sqlserver'), { recursive: true });
+fs.cpSync(path.join(root, 'frontend/out'), path.join(output, 'public'), { recursive: true });
+const names = ['@prisma/client', 'bcrypt', 'class-validator', 'class-transformer', '@nestjs/swagger', '@nestjs/common', '@nestjs/core', '@nestjs/platform-express', 'swagger-ui-dist', 'swagger-ui-express', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'];
+const dependencies = Object.fromEntries(names.map(name => [name, JSON.parse(fs.readFileSync(path.join(root, 'node_modules', name, 'package.json'), 'utf8')).version]));
+fs.writeFileSync(path.join(output, 'package.json'), JSON.stringify({ name: 'taskosaur-iqualitys-runtime', private: true, version: '1.0.0', dependencies }, null, 2));
+// Install only the runtime's external modules, not another monorepo per release.
+const npmCli = path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+execFileSync(process.execPath, [npmCli, 'install', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: output, stdio: 'inherit' });
+fs.cpSync(path.join(root, 'node_modules/.prisma/client'), path.join(output, 'node_modules/.prisma/client'), { recursive: true });
+fs.cpSync(path.join(root, 'node_modules/bcrypt/lib/binding'), path.join(output, 'node_modules/bcrypt/lib/binding'), { recursive: true });
+const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+fs.writeFileSync(path.join(output, 'release.json'), JSON.stringify({ format: 'taskosaur-iqualitys-release-v1', commit, createdAt: new Date().toISOString(), mainSha256: createHash('sha256').update(fs.readFileSync(path.join(output, 'main.js'))).digest('hex'), dirty: !!execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim() }, null, 2));
+console.log('IIS artifact ready: ' + output);

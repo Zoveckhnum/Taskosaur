@@ -143,6 +143,26 @@ export class StorageService implements OnModuleInit {
       }
 
       const filePath = path.join(localPath, safeFileName);
+      if (process.env.TASKOSAUR_UPLOAD_MAX_BYTES) {
+        const maximum = Number(process.env.TASKOSAUR_UPLOAD_MAX_BYTES);
+        if (!Number.isSafeInteger(maximum) || maximum < 1)
+          throw new BadRequestException('Invalid upload storage budget');
+        const directoryBytes = (directory: string): number =>
+          fs.readdirSync(directory).reduce((sum, name) => {
+            const entry = path.join(directory, name);
+            const stat = fs.lstatSync(entry);
+            if (stat.isSymbolicLink())
+              throw new BadRequestException('Upload storage cannot contain links');
+            return sum + (stat.isDirectory() ? directoryBytes(entry) : stat.size);
+          }, 0);
+        const disk = fs.statfsSync(this.uploadDir);
+        if (
+          directoryBytes(this.uploadDir) + file.buffer.length > maximum ||
+          disk.bavail * disk.bsize - file.buffer.length <
+            Number(process.env.TASKOSAUR_MIN_FREE_BYTES || 10737418240)
+        )
+          throw new BadRequestException('Se alcanzó el límite de almacenamiento de archivos');
+      }
       fs.writeFileSync(filePath, file.buffer);
 
       return {

@@ -26,6 +26,7 @@ import { enhancePromptWithContext } from './app-guide';
 import { getAutomationPrompt } from './automation-prompts';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Conversation } from '@prisma/client';
+import { CodexCliService } from './codex-cli.service';
 
 /**
  * Drop empty messages and merge consecutive same-role ones.
@@ -67,6 +68,7 @@ export class AiChatService {
   constructor(
     private settingsService: SettingsService,
     private prisma: PrismaService,
+    private codex: CodexCliService,
   ) {}
 
   private detectProvider(apiUrl: string): string {
@@ -283,6 +285,7 @@ export class AiChatService {
     userId: string,
     maxTokens = this.maxTokensDefault,
   ): Promise<string> {
+    if (this.codex.enabled) return this.codex.complete(normalizeMessages(messages), userId);
     const [apiKey, model, rawApiUrl] = await Promise.all([
       this.settingsService.get('ai_api_key', userId),
       this.settingsService.get('ai_model', userId),
@@ -363,7 +366,9 @@ export class AiChatService {
   }
 
   private generateSystemPrompt(): string {
-    return `You are Taskosaur AI assistant for browser automation.Your job is to help users automate tasks on web pages.
+    return `Responde siempre en español. Conserva los identificadores del protocolo ACTION, DONE y ASK y los nombres de comandos sin traducir.
+
+You are Taskosaur AI assistant for browser automation.Your job is to help users automate tasks on web pages.
 
 You will receive:
 1. The current page URL
@@ -385,7 +390,7 @@ OR
 ASK: [question] (only when required data missing)
 
 RESPONSE RULES:
-- For greetings (hi, hello, hey): DONE: Hi! How can I help you with Taskosaur today?
+- For greetings (hola, hi, hello, hey): DONE: ¡Hola! ¿En qué puedo ayudarte con Taskosaur hoy?
 - For off-topic/non-app requests: DONE: I can only help with Taskosaur tasks like creating tasks, projects, filtering, etc.
 - For completed actions: DONE: [what was done, e.g. "Task created" or "Filter applied"]
 - For questions needing data: ASK: [specific question]
@@ -543,19 +548,18 @@ ADMIN PANEL RULES (SUPER_ADMIN ONLY):
         this.settingsService.get('ai_api_url', userId),
       ]);
 
-      if (!rawApiUrl) {
+      if (!this.codex.enabled && !rawApiUrl) {
         throw new BadRequestException(
           'AI API URL not configured. Please set the API URL in settings.',
         );
       }
 
-      const destination = await this.resolveProviderEndpoint(rawApiUrl);
-      // Only the provider identity is needed here; callLlm re-resolves and sends.
-      const apiUrl = destination.url.replace(/\/$/, '');
-      const provider = this.detectProvider(apiUrl);
+      const provider = this.codex.enabled
+        ? 'codex-cli'
+        : this.detectProvider((await this.resolveProviderEndpoint(rawApiUrl!)).url);
 
       // API key is optional for Ollama (localhost/private network)
-      if (!apiKey && provider !== 'ollama') {
+      if (!this.codex.enabled && !apiKey && provider !== 'ollama') {
         throw new BadRequestException('AI API key not configured. Please set it in settings.');
       }
 
@@ -654,10 +658,9 @@ ADMIN PANEL RULES (SUPER_ADMIN ONLY):
 
 "${cleanUserMsg}"`;
 
-            const aiGeneratedTitle = await this.callLlm(
-              [{ role: 'user', content: titlePrompt }],
-              userId,
-            );
+            const aiGeneratedTitle = this.codex.enabled
+              ? cleanUserMsg.trim().slice(0, 40)
+              : await this.callLlm([{ role: 'user', content: titlePrompt }], userId);
 
             // Clean up the generated title
             let cleanTitle = aiGeneratedTitle
@@ -783,6 +786,20 @@ ADMIN PANEL RULES (SUPER_ADMIN ONLY):
         this.settingsService.get('ai_api_url', userId),
       ]);
 
+      if (this.codex.enabled) {
+        const description = await this.callLlm(
+          [
+            {
+              role: 'system',
+              content:
+                'Generate a concise actionable task description in Markdown, 2-4 sentences, only the description.',
+            },
+            { role: 'user', content: `Type: ${dto.taskType || 'TASK'}\nTitle: ${dto.title}` },
+          ],
+          userId,
+        );
+        return { description, success: true };
+      }
       if (!rawApiUrl || !model) {
         throw new Error('AI not configured');
       }
@@ -990,10 +1007,17 @@ Respond ONLY with the description text, nothing else.`;
    * Test connection to AI provider without requiring AI to be enabled
    * This allows users to verify their configuration before saving and enabling
    */
-  async testConnection(testConnectionDto: TestConnectionDto): Promise<TestConnectionResponseDto> {
+  async testConnection(
+    testConnectionDto: TestConnectionDto,
+    userId = 'connection-test',
+  ): Promise<TestConnectionResponseDto> {
     const { apiKey, model, apiUrl } = testConnectionDto;
 
     try {
+      if (this.codex.enabled) {
+        await this.codex.complete([{ role: 'user', content: 'Reply with OK.' }], userId);
+        return { success: true, message: 'Codex CLI disponible.' };
+      }
       // Validate the URL (this also allows HTTP for localhost/private networks)
       const destination = await this.resolveProviderEndpoint(apiUrl);
       // The name decides which provider this is; the address is what gets sent to.

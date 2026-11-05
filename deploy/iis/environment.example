@@ -1,0 +1,24 @@
+NODE_ENV=production
+HOST=127.0.0.1
+PORT=10021
+DATABASE_URL=sqlserver://sql.stackbi.com.mx:1433;database=TaskosaurIqualitys;integratedSecurity=true;encrypt=true;trustServerCertificate=false;connectionLimit=3;connectTimeout=10;socketTimeout=30
+FRONTEND_URL=https://project-manajer-iqualitys.stackbi.com.mx
+APP_URL=https://project-manajer-iqualitys.stackbi.com.mx
+CORS_ORIGINS=https://project-manajer-iqualitys.stackbi.com.mx
+AI_TRANSPORT=codex-cli
+CODEX_EXECUTABLE=C:\ProgramData\StackBI\Applications\Taskosaur\tools\codex.exe
+CODEX_HOME=C:\ProgramData\StackBI\Applications\Taskosaur\codex
+TASKOSAUR_STATE_ROOT=C:\ProgramData\StackBI\Applications\Taskosaur\data
+CODEX_TIMEOUT_MS=90000
+CODEX_MAX_PROMPT_BYTES=98304
+CODEX_RESERVE_TOKENS=131072
+CODEX_DAILY_TOKENS=2097152
+CODEX_USER_DAILY_TOKENS=524288
+TASKOSAUR_MIN_FREE_BYTES=10737418240
+TASKOSAUR_UPLOAD_MAX_BYTES=4294967296
+UPLOAD_DEST=C:\ProgramData\StackBI\Applications\Taskosaur\uploads
+UPLOAD_DIR=C:\ProgramData\StackBI\Applications\Taskosaur\uploads
+QUEUE_BACKEND=better-queue
+BETTER_QUEUE_CONCURRENT=1
+# Generate independent JWT_SECRET, JWT_REFRESH_SECRET and ENCRYPTION_KEY.
+# The installer saves secrets in CMS, outside release folders and Git.

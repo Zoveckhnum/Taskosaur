@@ -14,7 +14,7 @@ export interface HealthStatus {
 }
 
 export interface ServiceHealth {
-  status: 'up' | 'down';
+  status: 'up' | 'down' | 'disabled';
   responseTime?: number;
   error?: string;
 }
@@ -36,7 +36,8 @@ export class HealthService {
     ]);
 
     return {
-      status: 'healthy',
+      status:
+        databaseHealth.status === 'up' && redisHealth.status !== 'down' ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
       uptime: Math.floor((Date.now() - this.startTime) / 1000),
       services: {
@@ -72,6 +73,9 @@ export class HealthService {
   }
 
   private async checkRedis(): Promise<ServiceHealth> {
+    if (this.configService.get<string>('QUEUE_BACKEND', 'bullmq') !== 'bullmq') {
+      return { status: 'disabled' };
+    }
     const startTime = Date.now();
     let redisClient: Redis | null = null;
 

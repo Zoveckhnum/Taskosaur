@@ -313,6 +313,13 @@ module.exports = function (options, webpack) {
     }),
     // Always copy Swagger dependencies for Swagger UI to work
     new SwaggerDependenciesPlugin(),
+    {
+      apply(compiler) {
+        compiler.hooks.afterEmit.tap('SqlServerClient', () => {
+          fs.cpSync(path.join(__dirname, 'generated/sqlserver'), path.join(compiler.options.output.path, 'sqlserver'), { recursive: true });
+        });
+      },
+    },
   ];
 
   // Only add PackageAndDependenciesPlugin when BUILD_DIST is true
@@ -332,6 +339,7 @@ module.exports = function (options, webpack) {
       },
     },
     externals: [
+      { '../../generated/sqlserver': 'commonjs ./sqlserver' },
       // Exclude native modules from webpack bundle
       'bcrypt',
       '@prisma/client',
