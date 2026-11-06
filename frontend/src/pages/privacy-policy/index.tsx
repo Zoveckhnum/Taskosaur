@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
           <div className="prose prose-gray dark:prose-invert max-w-none space-y-6">
             <section className="space-y-4">
               <p className="text-muted-foreground leading-relaxed">
-                At Taskosaur, we take your privacy seriously. This Privacy Policy explains how we
+                At Iqualitys PM, we take your privacy seriously. This Privacy Policy explains how we
                 collect, use, disclose, and safeguard your information when you use our project
                 management platform.
               </p>
@@ -91,7 +91,7 @@ export default function PrivacyPolicyPage() {
               <div className="space-y-3">
                 <h3 className="text-xl font-medium text-foreground">1.3 Project and Task Data</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  When you use Taskosaur, we store:
+                  When you use Iqualitys PM, we store:
                 </p>
                 <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                   <li>Project names, descriptions, and settings</li>
@@ -306,8 +306,7 @@ export default function PrivacyPolicyPage() {
                 contact us at:
               </p>
               <div className="pl-6 space-y-1 text-muted-foreground">
-                <p>Email: privacy@taskosaur.com</p>
-                <p>Data Protection Officer: dpo@taskosaur.com</p>
+                <p>Contacta al administrador de Iqualitys PM.</p>
               </div>
             </section>
           </div>
@@ -315,7 +314,7 @@ export default function PrivacyPolicyPage() {
           <div className="pt-8 border-t">
             <div className="space-y-4">
               <p className="text-center text-sm text-muted-foreground">
-                By using Taskosaur, you acknowledge that you have read and understood this Privacy
+                By using Iqualitys PM, you acknowledge that you have read and understood this Privacy
                 Policy.
               </p>
               <p className="text-center text-sm text-muted-foreground">

@@ -750,7 +750,7 @@ export default function ChatPanel() {
                     <HiSparkles className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold text-primary mb-2">
-                    Hi! I'm your Taskosaur AI Assistant
+                    ¡Hola! Soy tu asistente de IA de Iqualitys PM.
                   </h3>
                   <p className="text-sm mb-4 text-gray-600 dark:text-gray-400">
                     I can help you manage tasks, projects, and workspaces
@@ -811,7 +811,7 @@ export default function ChatPanel() {
                       // System Message - Centered
                       <div className="flex justify-center mb-4">
                         <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-2 text-sm max-w-[90%]">
-                          {message.content}
+                          {message.content.replace(/\bTaskosaur\b/g, "Iqualitys PM")}
                         </div>
                       </div>
                     ) : (
@@ -823,7 +823,7 @@ export default function ChatPanel() {
                           </div>
                           <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow-sm">
                             <div className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap break-words">
-                              {message.content}
+                              {message.content.replace(/\bTaskosaur\b/g, "Iqualitys PM")}
                               {message.isStreaming && (
                                 <span className="inline-block w-2 h-4 ml-1 bg-blue-600 animate-pulse rounded" />
                               )}

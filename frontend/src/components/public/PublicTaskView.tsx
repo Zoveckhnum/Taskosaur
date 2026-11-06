@@ -79,13 +79,13 @@ export default function PublicTaskView({ task, token }: PublicTaskViewProps) {
             <div className="hidden sm:flex items-center gap-2 text-[var(--foreground)] font-bold text-lg">
               <Image
                 src="/taskosaur-logo.svg"
-                alt="Taskosaur Logo"
+                alt="Iqualitys PM Logo"
                 width={24}
                 height={24}
                 className={`size-6 ${resolvedTheme === "light" ? "filter invert brightness-200" : ""
                   }`}
               />
-              <span>Taskosaur</span>
+              <span>Iqualitys PM</span>
             </div>
           </div>
         </div>
@@ -225,7 +225,7 @@ export default function PublicTaskView({ task, token }: PublicTaskViewProps) {
 
         {/* Footer */}
         <div className="text-center text-xs text-[var(--muted-foreground)] py-8 mt-8 border-t border-[var(--border)]">
-          <p>Shared securely via Taskosaur</p>
+          <p>Shared securely via Iqualitys PM</p>
         </div>
 
       </div>

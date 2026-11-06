@@ -8,7 +8,7 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ 
-  statusText = "Initializing Taskosaur", 
+  statusText = "Initializing Iqualitys PM",
   progress,
   isExiting = false 
 }) => {
@@ -32,7 +32,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
         <div className="splash-logo">
           <Image
             src="/taskosaur-logo.svg"
-            alt="Taskosaur Logo"
+            alt="Iqualitys PM Logo"
             width={120}
             height={120}
             priority

@@ -744,7 +744,7 @@ export default function TrelloSyncPanel({ projectId, projectStatuses = [] }: Tre
                         size="sm"
                         className="h-8 text-[10px] px-4"
                         leftIcon={<ExternalLink size={12} />}
-                        onClick={() => window.open(`https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&key=${apiKey.trim()}&name=Taskosaur`, '_blank')}
+                        onClick={() => window.open(`https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&key=${apiKey.trim()}&name=Iqualitys%20PM`, '_blank')}
                       >
                         {t("trello.wizard.get_token_btn")}
                       </ActionButton>

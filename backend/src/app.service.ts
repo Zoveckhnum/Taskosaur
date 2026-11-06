@@ -3,6 +3,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Welcome to Taskosaur Backend API!';
+    return 'Welcome to Iqualitys PM Backend API!';
   }
 }

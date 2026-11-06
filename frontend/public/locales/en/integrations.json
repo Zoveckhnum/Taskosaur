@@ -22,7 +22,7 @@
     "disconnect": "Disconnect",
     "footer_note": "Auto-sync runs every <1>{{interval}} min</1>. Tasks synced from Trello will have a Trello Card ID for deduplication.",
     "features": {
-      "import_cards": "Import Trello cards as Taskosaur tasks",
+      "import_cards": "Import Trello cards as Iqualitys PM tasks",
       "map_lists": "Map Trello lists to your project statuses",
       "auto_sync": "Auto-sync on a configurable interval (5–60 min)",
       "archived": "Archived cards are automatically archived here",
@@ -51,9 +51,9 @@
       "select_board_desc": "Select the Trello board to sync with this project.",
       "sync_interval_label": "Auto-sync interval",
       "configure_mappings": "Configure Mappings",
-      "mapping_desc": "Map each Trello list to a Taskosaur status. Unmapped lists will use the project's default status.",
+      "mapping_desc": "Map each Trello list to a Iqualitys PM status. Unmapped lists will use the project's default status.",
       "trello_list": "Trello List",
-      "taskosaur_status": "Taskosaur Status",
+      "taskosaur_status": "Iqualitys PM Status",
       "default_status": "(Default status)",
       "connect_start": "Connect & Start Sync"
     },

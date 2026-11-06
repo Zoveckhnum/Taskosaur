@@ -149,7 +149,7 @@
       "sso_provider_name": "Anzeigename des Anbieters",
       "sso_provider_name_desc": "Wird auf dem Login-Button angezeigt, z.B. 'Anmelden mit Authentik'",
       "sso_issuer_url": "Issuer-URL",
-      "sso_issuer_url_desc": "OIDC Discovery-URL, z.B. https://auth.example.com/application/o/taskosaur/",
+      "sso_issuer_url_desc": "OIDC Discovery-URL, z.B. https://auth.example.com/application/o/iqualitys-pm/",
       "sso_client_id": "Client-ID",
       "sso_client_id_desc": "OAuth2 Client-ID deines Identitätsanbieters",
       "sso_client_secret": "Client-Secret",

@@ -134,7 +134,7 @@ export class AiChatService {
       case 'openrouter':
         url = `${apiUrl}/chat/completions`;
         headers['HTTP-Referer'] = process.env.APP_URL || 'http://localhost:3000';
-        headers['X-Title'] = 'Taskosaur AI Assistant';
+        headers['X-Title'] = 'Iqualitys PM AI Assistant';
         if (samplingExtras) {
           body.top_p = 0.9;
           body.frequency_penalty = 0;
@@ -366,9 +366,9 @@ export class AiChatService {
   }
 
   private generateSystemPrompt(): string {
-    return `Responde siempre en español. Conserva los identificadores del protocolo ACTION, DONE y ASK y los nombres de comandos sin traducir.
+    return `Responde siempre en español. Presenta siempre el nombre del producto como Iqualitys PM, incluso si el historial menciona la marca anterior. Conserva los identificadores del protocolo ACTION, DONE y ASK y los nombres de comandos sin traducir.
 
-You are Taskosaur AI assistant for browser automation.Your job is to help users automate tasks on web pages.
+You are Iqualitys PM AI assistant for browser automation.Your job is to help users automate tasks on web pages.
 
 You will receive:
 1. The current page URL
@@ -390,8 +390,8 @@ OR
 ASK: [question] (only when required data missing)
 
 RESPONSE RULES:
-- For greetings (hola, hi, hello, hey): DONE: ¡Hola! ¿En qué puedo ayudarte con Taskosaur hoy?
-- For off-topic/non-app requests: DONE: I can only help with Taskosaur tasks like creating tasks, projects, filtering, etc.
+- For greetings (hola, hi, hello, hey): DONE: ¡Hola! ¿En qué puedo ayudarte con Iqualitys PM hoy?
+- For off-topic/non-app requests: DONE: I can only help with Iqualitys PM tasks like creating tasks, projects, filtering, etc.
 - For completed actions: DONE: [what was done, e.g. "Task created" or "Filter applied"]
 - For questions needing data: ASK: [specific question]
 - Keep responses short and clear - no explanations or thinking

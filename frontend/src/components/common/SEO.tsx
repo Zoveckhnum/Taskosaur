@@ -7,9 +7,9 @@ interface SEOProps {
 
 export const SEO = ({ 
   title, 
-  description = "Taskosaur - Modern, AI-powered task management for productive teams.",
+  description = "Iqualitys PM - Modern, AI-powered task management for productive teams.",
 }: SEOProps) => {
-  const siteTitle = "Taskosaur";
+  const siteTitle = "Iqualitys PM";
   const displayTitle = title ? `${title} | ${siteTitle}` : siteTitle;
 
   return (

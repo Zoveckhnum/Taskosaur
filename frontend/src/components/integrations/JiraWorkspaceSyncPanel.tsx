@@ -190,7 +190,7 @@ export default function JiraWorkspaceSyncPanel({ workspaceId, organizationId }: 
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         {[
-          t("trello.features.import_cards", "Import multiple Jira projects as Taskosaur projects").replace("Trello cards", "Jira projects").replace("cartões de Trello", "projetos de Jira").replace("cartes Trello", "projets Jira"),
+          t("trello.features.import_cards", "Import multiple Jira projects as Iqualitys PM projects").replace("Trello cards", "Jira projects").replace("cartões de Trello", "projetos de Jira").replace("cartes Trello", "projets Jira"),
           t("trello.features.auto_sync", "Bulk sync all connected projects"),
           t("trello.features.per_user", "Shared credentials across projects").replace("Each user can connect their own Trello account", "Shared credentials across projects"),
           t("trello.wizard.encryption_hint", "Encrypted AES-256 storage")
@@ -362,7 +362,7 @@ export default function JiraWorkspaceSyncPanel({ workspaceId, organizationId }: 
           <Card className="mt-4 border-[var(--primary)]/30 animate-in fade-in slide-in-from-top-2 duration-300">
             <CardHeader className="py-4 border-b border-[var(--border)]">
               <div className="flex items-center justify-between">
-                <div><CardTitle className="text-sm">Step 2: {t("jira.browse_projects", "Select Projects to Import")}</CardTitle><CardDescription className="text-xs">{t("trello.wizard.select_board_desc", "Choose which Jira projects to bring into Taskosaur").replace("Trello board to sync with this project.", "Jira projects to bring into Taskosaur")}</CardDescription></div>
+                <div><CardTitle className="text-sm">Step 2: {t("jira.browse_projects", "Select Projects to Import")}</CardTitle><CardDescription className="text-xs">{t("trello.wizard.select_board_desc", "Choose which Jira projects to bring into Iqualitys PM").replace("Trello board to sync with this project.", "Jira projects to bring into Iqualitys PM")}</CardDescription></div>
                 <Button variant="ghost" size="sm" onClick={() => setStep("connected")}><X size={16} /></Button>
               </div>
             </CardHeader>
@@ -411,14 +411,14 @@ export default function JiraWorkspaceSyncPanel({ workspaceId, organizationId }: 
         <Card className="mt-4 border-[var(--primary)]/30 animate-in fade-in zoom-in-95 duration-300">
           <CardHeader className="py-4 border-b border-[var(--border)]">
             <div className="flex items-center justify-between">
-              <div><CardTitle className="text-sm">Step 3: {t("jira.map_statuses_title", "Map Statuses")}</CardTitle><CardDescription className="text-xs">{t("trello.wizard.mapping_desc", "Optional: Direct Jira statuses to specific Taskosaur statuses")}</CardDescription></div>
+              <div><CardTitle className="text-sm">Step 3: {t("jira.map_statuses_title", "Map Statuses")}</CardTitle><CardDescription className="text-xs">{t("trello.wizard.mapping_desc", "Optional: Direct Jira statuses to specific Iqualitys PM statuses")}</CardDescription></div>
               <Button variant="ghost" size="sm" onClick={() => setStep("select_projects")}><X size={16} /></Button>
             </div>
           </CardHeader>
           <CardContent className="py-6">
             <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-xs text-amber-600 mb-6 flex items-start gap-3">
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
-              <p>{t("trello.wizard.mapping_desc", "By default we'll auto map...").replace("Trello list to a Taskosaur status. Unmapped lists will use the project default status.", "Jira status to a Taskosaur status by name. New statuses will be created if they don't exist.")}</p>
+              <p>{t("trello.wizard.mapping_desc", "By default we'll auto map...").replace("Trello list to a Iqualitys PM status. Unmapped lists will use the project default status.", "Jira status to a Iqualitys PM status by name. New statuses will be created if they don't exist.")}</p>
             </div>
 
             <div className="space-y-8">
@@ -430,7 +430,7 @@ export default function JiraWorkspaceSyncPanel({ workspaceId, organizationId }: 
                   <div className="rounded-xl border border-[var(--border)] overflow-hidden bg-[var(--background)]/30">
                     <div className="grid grid-cols-2 px-4 py-2 bg-[var(--muted)]/50 text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)] border-b border-[var(--border)]">
                       <span>{t("trello.wizard.trello_list", "Jira Status").replace("Trello List", "Jira Status").replace("Lista do Trello", "Status do Jira").replace("Liste Trello", "Statut Jira").replace("Lista de Trello", "Estado de Jira")}</span>
-                      <span>{t("trello.wizard.taskosaur_status", "Taskosaur Status")}</span>
+                      <span>{t("trello.wizard.taskosaur_status", "Iqualitys PM Status")}</span>
                     </div>
                     {jiraStatuses[projectKey]?.map(s => (
                       <div key={s.id} className="grid grid-cols-2 items-center px-4 py-3 border-b border-[var(--border)] last:border-0 hover:bg-[var(--muted)]/20 transition-colors">

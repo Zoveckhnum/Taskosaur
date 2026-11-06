@@ -195,7 +195,7 @@ export class CodexCliService {
             /* Spawn/close handles the failure. */
           });
           child.stdin.end(
-            'Act as the Taskosaur assistant. The following JSON contains the conversation, including system instructions. Reply only with the requested final text. Do not use tools.\n' +
+            'Act as the Iqualitys PM assistant. The following JSON contains the conversation, including system instructions. Reply only with the requested final text. Do not use tools.\n' +
               prompt,
           );
         });

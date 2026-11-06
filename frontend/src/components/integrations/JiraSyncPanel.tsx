@@ -279,7 +279,7 @@ export default function JiraSyncPanel({ projectId, projectStatuses = [] }: Props
             <div className="space-y-3">
               <Label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">{t("trello.wizard.configure_mappings", "Status Mappings")}</Label>
               <div className="rounded-xl border border-[var(--border)] overflow-hidden">
-                <div className="grid grid-cols-2 px-6 py-2 bg-[var(--muted)]/30 text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] border-b border-[var(--border)]"><span>{t("trello.wizard.trello_list", "Jira Status").replace("Trello List", "Jira Status").replace("Lista do Trello", "Status do Jira").replace("Liste Trello", "Statut Jira").replace("Lista de Trello", "Estado de Jira")}</span><span>{t("trello.wizard.taskosaur_status", "Taskosaur Status")}</span></div>
+                <div className="grid grid-cols-2 px-6 py-2 bg-[var(--muted)]/30 text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] border-b border-[var(--border)]"><span>{t("trello.wizard.trello_list", "Jira Status").replace("Trello List", "Jira Status").replace("Lista do Trello", "Status do Jira").replace("Liste Trello", "Statut Jira").replace("Lista de Trello", "Estado de Jira")}</span><span>{t("trello.wizard.taskosaur_status", "Iqualitys PM Status")}</span></div>
                 {jiraStatuses.map(s => (
                   <div key={s.id} className="grid grid-cols-2 items-center px-6 py-3 border-b border-[var(--border)] last:border-0">
                     <span className="text-xs font-medium">{s.name}</span>
@@ -319,7 +319,7 @@ export default function JiraSyncPanel({ projectId, projectStatuses = [] }: Props
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4">
           {[
             t("trello.features.import_cards", "Import issues from Jira Cloud").replace("Trello cards", "Jira issues").replace("cartões de Trello", "problemas de Jira").replace("cartes Trello", "tickets Jira"),
-            t("trello.features.map_lists", "Map Jira statuses to Taskosaur statuses").replace("Trello lists", "Jira statuses").replace("listas de Trello", "estados de Jira").replace("listes Trello", "statuts Jira").replace("listas do Trello", "status do Jira"),
+            t("trello.features.map_lists", "Map Jira statuses to Iqualitys PM statuses").replace("Trello lists", "Jira statuses").replace("listas de Trello", "estados de Jira").replace("listes Trello", "statuts Jira").replace("listas do Trello", "status do Jira"),
             t("trello.features.auto_sync", "Auto-sync on a schedule"),
             t("trello.sync_now", "Manual sync on demand"),
             t("trello.features.per_user", "Per-project credentials (encrypted)").replace("Each user can connect their own Trello account", "Per-project credentials (encrypted)").replace("Cada usuário pode conectar sua própria conta do Trello", "Credenciais por projeto (criptografadas)").replace("Chaque utilisateur peut connecter son propre compte Trello", "Identifiants par projet (chiffrés)").replace("Cada usuario puede conectar su propia cuenta de Trello", "Credenciales por proyecto (encriptadas)")
@@ -451,9 +451,9 @@ export default function JiraSyncPanel({ projectId, projectStatuses = [] }: Props
               </span>
             </div>
             <div className="space-y-3">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">{t("trello.wizard.mapping_desc", "Map Jira Statuses → Taskosaur Statuses").replace("Trello list to a Taskosaur status", "Jira status to a Taskosaur status").replace("lista de Trello a un estado de Taskosaur", "estado de Jira a un estado de Taskosaur").replace("liste Trello à un état Taskosaur", "statut Jira à un état Taskosaur").replace("lista do Trello para um status do Taskosaur", "status do Jira para um status do Taskosaur")}</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">{t("trello.wizard.mapping_desc", "Map Jira Statuses → Iqualitys PM Statuses").replace("Trello list to a Iqualitys PM status", "Jira status to a Iqualitys PM status").replace("lista de Trello a un estado de Iqualitys PM", "estado de Jira a un estado de Iqualitys PM").replace("liste Trello à un état Iqualitys PM", "statut Jira à un état Iqualitys PM").replace("lista do Trello para um status do Iqualitys PM", "status do Jira para um status do Iqualitys PM")}</Label>
               <div className="rounded-xl border border-[var(--border)] overflow-hidden">
-                <div className="grid grid-cols-2 px-6 py-2 bg-[var(--muted)]/30 text-[10px] font-bold uppercase text-[var(--muted-foreground)] border-b border-[var(--border)]"><span>{t("trello.wizard.trello_list", "Jira Status").replace("Trello List", "Jira Status").replace("Lista do Trello", "Status do Jira").replace("Liste Trello", "Statut Jira").replace("Lista de Trello", "Estado de Jira")}</span><span>{t("trello.wizard.taskosaur_status", "Taskosaur Status")}</span></div>
+                <div className="grid grid-cols-2 px-6 py-2 bg-[var(--muted)]/30 text-[10px] font-bold uppercase text-[var(--muted-foreground)] border-b border-[var(--border)]"><span>{t("trello.wizard.trello_list", "Jira Status").replace("Trello List", "Jira Status").replace("Lista do Trello", "Status do Jira").replace("Liste Trello", "Statut Jira").replace("Lista de Trello", "Estado de Jira")}</span><span>{t("trello.wizard.taskosaur_status", "Iqualitys PM Status")}</span></div>
                 {jiraStatuses.map(s => (
                   <div key={s.id} className="grid grid-cols-2 items-center px-6 py-3 border-b border-[var(--border)] last:border-0">
                     <span className="text-xs font-medium">{s.name}</span>

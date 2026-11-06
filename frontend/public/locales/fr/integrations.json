@@ -22,7 +22,7 @@
     "disconnect": "Déconnecter",
     "footer_note": "La synchronisation automatique s'exécute toutes les <1>{{interval}} min</1>. Les tâches synchronisées depuis Trello auront un identifiant de carte Trello pour la déduplication.",
     "features": {
-      "import_cards": "Importer les cartes Trello en tant que tâches Taskosaur",
+      "import_cards": "Importer les cartes Trello en tant que tâches Iqualitys PM",
       "map_lists": "Mapper les listes Trello aux états de votre projet",
       "auto_sync": "Synchronisation automatique sur un intervalle configurable (5–60 min)",
       "archived": "Les cartes archivées sont automatiquement archivées ici",
@@ -51,9 +51,9 @@
       "select_board_desc": "Sélectionnez le tableau Trello à synchroniser avec ce projet.",
       "sync_interval_label": "Intervalle de synchronisation automatique",
       "configure_mappings": "Configurer les mappages",
-      "mapping_desc": "Mappez chaque liste Trello à un état Taskosaur. Les listes non mappées utiliseront l'état par défaut du projet.",
+      "mapping_desc": "Mappez chaque liste Trello à un état Iqualitys PM. Les listes non mappées utiliseront l'état par défaut du projet.",
       "trello_list": "Liste Trello",
-      "taskosaur_status": "État Taskosaur",
+      "taskosaur_status": "État Iqualitys PM",
       "default_status": "(État par défaut)",
       "connect_start": "Connecter et démarrer la synchronisation"
     },

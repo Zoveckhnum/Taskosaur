@@ -19,12 +19,12 @@ export function RegisterContent() {
             <div className="flex items-center">
               <Image
                 src="/taskosaur-logo.svg"
-                alt="Taskosaur Logo"
+                alt="Iqualitys PM Logo"
                 width={50}
                 height={50}
                 className={`size-6 lg:size-10 ${resolvedTheme === "light" ? " filter invert brightness-200" : ""}`}
               />
-              <h1 className="login-brand-title">Taskosaur</h1>
+              <h1 className="login-brand-title">Iqualitys PM</h1>
             </div>
           </div>
 
@@ -35,8 +35,7 @@ export function RegisterContent() {
           </h2>
 
           <p className="signup-hero-description">
-            Create your free account today and discover why thousands of teams choose Taskosaur to
-            streamline their workflow and achieve more.
+            Create your account to manage your team's work with Iqualitys PM.
           </p>
         </motion.div>
       </div>

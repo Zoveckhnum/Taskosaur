@@ -19,7 +19,7 @@ test.describe('User Registration Page', () => {
 
   test('should load the registration page with all required elements', async ({ page }) => {
     // Verify page title
-    await expect(page).toHaveTitle(/Taskosaur/i);
+    await expect(page).toHaveTitle(/Iqualitys PM/i);
 
     // Verify main heading
     await expect(page.getByRole('heading', { name: /create account/i })).toBeVisible();
