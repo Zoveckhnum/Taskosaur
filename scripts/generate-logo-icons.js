@@ -11,7 +11,7 @@
  *   npm run generate:logo:icons -- --source=path/to/logo.svg --output=path/to/output
  *
  * Options:
- *   --source   Source SVG file path (default: assets/logo/taskosaur-logo.svg)
+ *   --source   Source SVG file path (default: frontend/public/taskosaur-logo.svg)
  *   --output   Output directory (default: frontend/public)
  */
 
@@ -26,7 +26,7 @@ const args = process.argv.slice(2).reduce((acc, arg) => {
 }, {});
 
 const ROOT_DIR = path.join(__dirname, '..');
-const DEFAULT_SOURCE = path.join(ROOT_DIR, 'assets/logo/taskosaur-logo.svg');
+const DEFAULT_SOURCE = path.join(ROOT_DIR, 'frontend/public/taskosaur-logo.svg');
 const DEFAULT_OUTPUT = path.join(ROOT_DIR, 'frontend/public');
 
 const sourcePath = args.source
@@ -48,7 +48,7 @@ const ICON_SIZES = [
   { name: 'apple-touch-icon.png', size: 180, description: 'Apple Touch Icon' },
   { name: 'android-chrome-192x192.png', size: 192, description: 'Android Chrome 192x192' },
   { name: 'android-chrome-512x512.png', size: 512, description: 'Android Chrome 512x512' },
-  { name: 'taskosaur-logo.png', size: 512, description: 'Taskosaur Logo' },
+  { name: 'taskosaur-logo.png', size: 512, description: 'Iqualitys PM Logo' },
 ];
 
 /**
@@ -173,8 +173,8 @@ async function generateFaviconIco(pngBuffers) {
  */
 function generateManifest() {
   const manifest = {
-    name: 'TaskosaurAny',
-    short_name: 'Taskosaur',
+    name: 'Iqualitys PM',
+    short_name: 'Iqualitys PM',
     description: 'Intelligent task automation platform with AI-powered chat interface',
     icons: [
       {

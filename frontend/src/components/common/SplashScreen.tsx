@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import BrandLogo from "@/components/common/BrandLogo";
 
 interface SplashScreenProps {
   statusText?: string;
@@ -30,13 +30,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
       <div className="splash-logo-container">
         <div className="splash-logo-glow" />
         <div className="splash-logo">
-          <Image
-            src="/taskosaur-logo.svg"
-            alt="Iqualitys PM Logo"
-            width={120}
-            height={120}
-            priority
-          />
+          <BrandLogo variant="vertical" className="w-52" priority />
         </div>
       </div>
 

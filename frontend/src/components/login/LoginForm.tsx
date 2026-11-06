@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight, Sparkle, Shield } from "lucide-react";
-import Image from "next/image";
-import { useTheme } from "next-themes";
+import BrandLogo from "@/components/common/BrandLogo";
 interface FormData {
   email: string;
   password: string;
@@ -21,7 +20,6 @@ interface FormData {
 export function LoginForm() {
   const { login, checkOrganizationAndRedirect } = useAuth();
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -113,17 +111,7 @@ export function LoginForm() {
         {/* Mobile Logo */}
 
         <div className="signup-mobile-logo">
-          <div className="signup-mobile-logo-icon">
-            <Image
-              src="/taskosaur-logo.svg"
-              alt="Iqualitys PM Logo"
-              width={50}
-              height={50}
-              className={`size-10 ${
-                resolvedTheme === "light" ? " filter invert brightness-200" : ""
-              }`}
-            />
-          </div>
+          <BrandLogo variant="vertical" className="w-44" priority />
         </div>
 
         <div className="login-form-header-content">

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Image from "next/image";
+import BrandLogo from "@/components/common/BrandLogo";
 import {
   Eye,
   EyeOff,
@@ -22,7 +22,6 @@ import {
   ArrowRight,
   Shield,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 
 interface FormData {
   firstName: string;
@@ -35,7 +34,6 @@ interface FormData {
 
 export function RegisterForm() {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
 
   const searchParams = useSearchParams();
   const { register, checkOrganizationAndRedirect } = useAuth();
@@ -151,17 +149,7 @@ export function RegisterForm() {
       <div className="signup-form-header">
         {/* Mobile Logo */}
         <div className="signup-mobile-logo">
-          <div className="signup-mobile-logo-icon">
-            <Image
-              src="/taskosaur-logo.svg"
-              alt="Iqualitys PM Logo"
-              width={50}
-              height={50}
-              className={`size-10 ${
-                resolvedTheme === "light" ? " filter invert brightness-200" : ""
-              }`}
-            />
-          </div>
+          <BrandLogo variant="vertical" className="w-44" priority />
         </div>
 
         <h1 className="signup-form-title">Create Account</h1>

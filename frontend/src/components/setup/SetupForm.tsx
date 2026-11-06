@@ -17,13 +17,11 @@ import {
   ArrowRight,
   Shield,
 } from "lucide-react";
-import Image from "next/image";
-import { useTheme } from "next-themes";
+import BrandLogo from "@/components/common/BrandLogo";
 import { SetupAdminData } from "@/types";
 
 export function SetupForm() {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
 
   const [formData, setFormData] = useState<SetupAdminData>({
     email: "",
@@ -147,17 +145,7 @@ export function SetupForm() {
       <div className="setup-form-header flex justify-center items-center flex-col">
         {/* Mobile Logo */}
         <div className="setup-mobile-logo">
-          <div className="setup-mobile-logo-icon">
-            <Image
-              src="/taskosaur-logo.svg"
-              alt="Iqualitys PM Logo"
-              width={50}
-              height={50}
-              className={`size-10 ${
-                resolvedTheme === "light" ? "filter invert brightness-200" : ""
-              }`}
-            />
-          </div>
+          <BrandLogo variant="vertical" className="w-44" priority />
         </div>
 
         <div className="setup-form-header-content">

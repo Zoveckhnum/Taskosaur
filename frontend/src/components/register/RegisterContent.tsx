@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
-import Image from "next/image";
+import BrandLogo from "@/components/common/BrandLogo";
 export function RegisterContent() {
-  const { resolvedTheme } = useTheme();
 
   return (
     <div className="signup-hero-container">
@@ -17,14 +15,8 @@ export function RegisterContent() {
         >
           <div className="">
             <div className="flex items-center">
-              <Image
-                src="/taskosaur-logo.svg"
-                alt="Iqualitys PM Logo"
-                width={50}
-                height={50}
-                className={`size-6 lg:size-10 ${resolvedTheme === "light" ? " filter invert brightness-200" : ""}`}
-              />
-              <h1 className="login-brand-title">Iqualitys PM</h1>
+              <BrandLogo variant="horizontal" className="w-80" priority />
+              <h1 className="sr-only">Iqualitys PM</h1>
             </div>
           </div>
 

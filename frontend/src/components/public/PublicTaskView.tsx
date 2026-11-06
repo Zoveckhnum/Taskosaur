@@ -9,8 +9,7 @@ import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import { PriorityBadge } from '@/components/badges/PriorityBadge';
 import { Label } from '@/components/ui/label';
-import Image from "next/image";
-import { useTheme } from "next-themes";
+import BrandLogo from "@/components/common/BrandLogo";
 import { ModeToggle } from '@/components/header/ModeToggle';
 
 interface PublicTaskViewProps {
@@ -19,7 +18,6 @@ interface PublicTaskViewProps {
 }
 
 export default function PublicTaskView({ task, token }: PublicTaskViewProps) {
-  const { resolvedTheme } = useTheme();
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No due date';
@@ -77,15 +75,8 @@ export default function PublicTaskView({ task, token }: PublicTaskViewProps) {
           <div className="flex items-center gap-4">
             <ModeToggle />
             <div className="hidden sm:flex items-center gap-2 text-[var(--foreground)] font-bold text-lg">
-              <Image
-                src="/taskosaur-logo.svg"
-                alt="Iqualitys PM Logo"
-                width={24}
-                height={24}
-                className={`size-6 ${resolvedTheme === "light" ? "filter invert brightness-200" : ""
-                  }`}
-              />
-              <span>Iqualitys PM</span>
+              <BrandLogo variant="horizontal" className="w-44" />
+              <span className="sr-only">Iqualitys PM</span>
             </div>
           </div>
         </div>
