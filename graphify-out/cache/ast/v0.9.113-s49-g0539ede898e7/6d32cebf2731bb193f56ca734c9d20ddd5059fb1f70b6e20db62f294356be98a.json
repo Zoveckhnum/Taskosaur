@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_backend_prisma_migrations_20251117094638_add_enum_in_activity_migration_sql", "label": "migration.sql", "file_type": "code", "source_file": "backend/prisma/migrations/20251117094638_add_enum_in_activity/migration.sql", "source_location": null}], "edges": []}
