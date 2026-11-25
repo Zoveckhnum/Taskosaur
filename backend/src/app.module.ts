@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OfficeOperationsModule } from './modules/office-operations/office-operations.module';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule } from '@nestjs/core';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -52,6 +53,7 @@ import { JiraSyncModule } from './modules/jira-sync/jira-sync.module';
 
 @Module({
   imports: [
+    OfficeOperationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig],
@@ -62,6 +64,7 @@ import { JiraSyncModule } from './modules/jira-sync/jira-sync.module';
       {
         path: 'api',
         children: [
+          OfficeOperationsModule,
           TrelloSyncModule,
           JiraSyncModule,
           AuthModule,

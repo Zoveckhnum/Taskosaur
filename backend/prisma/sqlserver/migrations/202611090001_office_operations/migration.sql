@@ -1,0 +1,1 @@
+CREATE TABLE dbo.office_operation_receipts (operation_id uniqueidentifier NOT NULL CONSTRAINT PK_office_operation_receipts PRIMARY KEY,user_id uniqueidentifier NOT NULL,payload_hash char(64) NOT NULL,receipt_json nvarchar(max) NOT NULL CHECK(ISJSON(receipt_json)=1),created_at datetime2 NOT NULL DEFAULT SYSUTCDATETIME());

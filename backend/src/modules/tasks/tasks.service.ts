@@ -120,6 +120,25 @@ export class TasksService {
     };
   }
 
+  /** Reuse the normal task rules inside the Office receipt transaction. */
+  withinOfficeTransaction(tx: Prisma.TransactionClient): TasksService {
+    const scoped = new Proxy(tx, {
+      get(target, key) {
+        if (key === '$transaction')
+          return (work: (client: Prisma.TransactionClient) => unknown) => work(tx);
+        const value: unknown = Reflect.get(target, key);
+        return typeof value === 'function' ? (value.bind(target) as unknown) : value;
+      },
+    }) as unknown as PrismaService;
+    return new TasksService(
+      scoped,
+      new AccessControlService(scoped),
+      this.storageService,
+      this.recurrenceService,
+      this.taskRanksService,
+    );
+  }
+
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<Task> {
     const project = await this.prisma.project.findUnique({
       where: { id: createTaskDto.projectId },
@@ -174,19 +193,19 @@ export class TasksService {
       // Build task create data - filter out undefined values
       const taskCreateData: any = {
         description: description ? sanitizeHtml(description) : undefined,
-        createdBy: userId,
+        createdByUser: { connect: { id: userId } },
         taskNumber,
         slug: taskSlug,
-        sprintId: sprintId,
         isRecurring: isRecurring || false,
       };
+      if (sprintId) taskCreateData.sprint = { connect: { id: sprintId } };
 
       // Add optional fields only if they have values
       if (taskData.title) taskCreateData.title = sanitizeText(taskData.title);
       if (taskData.type) taskCreateData.type = taskData.type;
       if (taskData.priority) taskCreateData.priority = taskData.priority;
-      if (taskData.projectId) taskCreateData.projectId = taskData.projectId;
-      if (taskData.statusId) taskCreateData.statusId = taskData.statusId;
+      if (taskData.projectId) taskCreateData.project = { connect: { id: taskData.projectId } };
+      if (taskData.statusId) taskCreateData.status = { connect: { id: taskData.statusId } };
       if (taskData.startDate) taskCreateData.startDate = taskData.startDate;
       if (taskData.dueDate) taskCreateData.dueDate = taskData.dueDate;
       if (taskData.storyPoints !== undefined) taskCreateData.storyPoints = taskData.storyPoints;
@@ -208,9 +227,9 @@ export class TasksService {
           if (!parentTask) {
             throw new NotFoundException(`Parent task with slug ${taskData.parentTaskId} not found`);
           }
-          taskCreateData.parentTaskId = parentTask.id;
+          taskCreateData.parentTask = { connect: { id: parentTask.id } };
         } else {
-          taskCreateData.parentTaskId = taskData.parentTaskId;
+          taskCreateData.parentTask = { connect: { id: taskData.parentTaskId } };
         }
       }
       if (taskData.completedAt !== undefined) taskCreateData.completedAt = taskData.completedAt;
@@ -220,14 +239,14 @@ export class TasksService {
       // Only add assignees if there are any
       if (assigneeIds?.length) {
         taskCreateData.assignees = {
-          create: assigneeIds.map((id) => ({ userId: id })),
+          create: assigneeIds.map((id) => ({ user: { connect: { id } } })),
         };
       }
 
       // Only add reporters if there are any
       if (reporterIds?.length) {
         taskCreateData.reporters = {
-          create: reporterIds.map((id) => ({ userId: id })),
+          create: reporterIds.map((id) => ({ user: { connect: { id } } })),
         };
       }
 

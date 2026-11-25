@@ -32,6 +32,7 @@ import { AccessControlService, AccessResult } from 'src/common/access-control.ut
 import { SettingsService } from '../settings/settings.service';
 import { encryptCookieValue, decryptCookieValue } from 'src/common/cookie-crypto.utils';
 import { OidcService } from './services/oidc.service';
+import { CentralAccess } from './services/central-access';
 export enum ScopeType {
   ORGANIZATION = 'organization',
   WORKSPACE = 'workspace',
@@ -110,6 +111,8 @@ export class AuthController {
     @Body() registerDto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
+    if (new CentralAccess(this.configService).enabled)
+      throw new UnauthorizedException('Use the central sign-in');
     const result = await this.authService.register(registerDto);
     this.setRefreshTokenCookie(res, result.refresh_token);
     return result;
@@ -381,12 +384,40 @@ export class AuthController {
     @Body() setupAdminDto: SetupAdminDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
+    if (new CentralAccess(this.configService).enabled)
+      throw new UnauthorizedException('Use the central sign-in');
     const result = await this.setupService.setupSuperAdmin(setupAdminDto);
     this.setRefreshTokenCookie(res, result.refresh_token);
     return result;
   }
 
   // ─── SSO / OIDC ──────────────────────────────────────────────────
+
+  @Public()
+  @Get('central/config')
+  centralConfig() {
+    const enabled = new CentralAccess(this.configService).enabled;
+    const origin = this.configService.get<string>('CENTRAL_PORTAL_ORIGIN') || '';
+    try {
+      const url = new URL(origin);
+      if (
+        !enabled ||
+        !(
+          url.protocol === 'https:' ||
+          (url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname))
+        ) ||
+        url.username ||
+        url.password ||
+        url.pathname !== '/' ||
+        url.search ||
+        url.hash
+      )
+        return { enabled: false };
+      return { enabled: true, portalUrl: url.origin + '/' };
+    } catch {
+      return { enabled: false };
+    }
+  }
 
   @Public()
   @Get('oidc/config')
@@ -406,7 +437,7 @@ export class AuthController {
     const cookieOpts = {
       httpOnly: true,
       maxAge: 600000,
-      sameSite: 'strict' as const,
+      sameSite: 'lax' as const,
       secure: isProduction,
     };
     res.cookie('oidc_state', state, cookieOpts);
@@ -437,18 +468,16 @@ export class AuthController {
         state,
         storedState,
         storedNonce,
+        typeof req.query.iss === 'string' ? req.query.iss : undefined,
       );
 
       // Clear OIDC cookies
       res.clearCookie('oidc_state');
       res.clearCookie('oidc_nonce');
 
-      // Store tokens in short-lived httpOnly cookie for secure exchange
+      // The browser carries a one-use opaque ticket; JWTs stay server-side.
       const isProd = process.env.NODE_ENV === 'production';
-      const encryptedSso = encryptCookieValue(
-        JSON.stringify(authResult),
-        this.getEncryptionSecret(),
-      );
+      const encryptedSso = this.oidcService.createExchange(authResult);
       res.cookie('sso_auth', encryptedSso, {
         httpOnly: true,
         maxAge: 60000,
@@ -457,11 +486,10 @@ export class AuthController {
       });
 
       return res.redirect('/login?sso=callback');
-    } catch (error: unknown) {
+    } catch {
       res.clearCookie('oidc_state');
       res.clearCookie('oidc_nonce');
-      const message = error instanceof Error ? error.message : 'SSO authentication failed';
-      return res.redirect(`/login?error=sso_failed&message=${encodeURIComponent(message)}`);
+      return res.redirect('/login?error=sso_failed');
     }
   }
 
@@ -476,12 +504,7 @@ export class AuthController {
     }
 
     try {
-      const decryptedSso = decryptCookieValue(encryptedSso, this.getEncryptionSecret());
-      if (!decryptedSso) {
-        res.clearCookie('sso_auth');
-        return res.status(401).json({ message: 'Invalid SSO session' });
-      }
-      const authResult = JSON.parse(decryptedSso) as Record<string, unknown>;
+      const authResult = this.oidcService.consumeExchange(encryptedSso);
       res.clearCookie('sso_auth');
 
       // Set refresh token as httpOnly cookie

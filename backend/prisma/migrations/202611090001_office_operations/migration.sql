@@ -1,0 +1,1 @@
+CREATE TABLE office_operation_receipts (operation_id uuid PRIMARY KEY,user_id uuid NOT NULL,payload_hash char(64) NOT NULL,receipt_json text NOT NULL,created_at timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);

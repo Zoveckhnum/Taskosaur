@@ -1,0 +1,164 @@
+.panel {
+  color: #4a4f57;
+  background: #fff;
+  line-height: 1.65;
+  font-size: 16px;
+  min-width: 0;
+  font-family: Montserrat, sans-serif;
+  padding: clamp(16px, 3vw, 28px);
+  border: 0;
+}
+.panel p {
+  max-width: 75ch;
+}
+.panel fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.panel legend,
+.panel h3 {
+  font-weight: 700;
+  color: #0d4a5d;
+  font-size: 1.0625rem;
+  margin: 24px 0 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 20px;
+}
+.grid label {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  min-width: 0;
+}
+.wide {
+  grid-column: 1/-1;
+}
+.panel input,
+.panel select,
+.panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  background: #fff;
+  color: #4a4f57;
+  border: 1px solid #a9b3ba;
+  border-radius: 7px;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 16px;
+  min-height: 48px;
+}
+.panel textarea {
+  resize: vertical;
+}
+.panel button {
+  min-height: 44px;
+  border: 1px solid #a9b3ba;
+  border-radius: 7px;
+  padding: 11px 16px;
+  background: #fff;
+  color: #0d4a5d;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.panel button:hover:not(:disabled) {
+  background: #edf3f5;
+}
+.panel .primary {
+  background: #0d4a5d;
+  color: #fff;
+  border-color: #0d4a5d;
+}
+.panel .primary:hover:not(:disabled) {
+  background: #07394a;
+}
+.panel button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.panel :is(button, input, select, textarea, a):focus-visible {
+  outline: 3px solid #356d86;
+  outline-offset: 3px;
+}
+.panel :is(input, textarea) {
+  caret-color: #0d4a5d;
+}
+.panel ::selection {
+  background: #e5eff2;
+  color: #0d4a5d;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.inline {
+  display: flex;
+  align-items: end;
+}
+.review {
+  margin-top: 32px;
+  padding-top: 8px;
+  border-top: 1px solid #dce1e4;
+  min-width: 0;
+}
+.changes {
+  margin: 20px 0;
+}
+.changes > div {
+  padding: 16px 0;
+  border-bottom: 1px solid #dce1e4;
+}
+.changes dt {
+  font-weight: 700;
+  color: #0d4a5d;
+}
+.changes dd {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.changes dd span {
+  display: block;
+  font-size: 0.875rem;
+  color: #626872;
+  margin-bottom: 4px;
+}
+.error {
+  padding: 16px;
+  background: #f5f0ec;
+  color: #9a5020;
+  overflow-wrap: anywhere;
+}
+.reference {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.panel a {
+  color: #0d4a5d;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .actions {
+    flex-direction: column;
+  }
+  .actions button {
+    width: 100%;
+  }
+  .panel {
+    padding: 16px;
+  }
+}

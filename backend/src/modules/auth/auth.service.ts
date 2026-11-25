@@ -18,6 +18,7 @@ import { SYSTEM_USER_ID } from '../../common/constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Role } from '@prisma/client';
 import { SettingsService } from '../settings/settings.service';
+import { CentralAccess } from './services/central-access';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,9 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+    if (new CentralAccess(this.configService).enabled) {
+      throw new UnauthorizedException('Use the central sign-in');
+    }
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -245,6 +249,7 @@ export class AuthService {
       }
 
       const payload = decoded as JwtPayload;
+      await new CentralAccess(this.configService).validate(payload, payload.sub);
       const user = await this.usersService.findOne(payload.sub);
 
       if (!user || user.refreshToken !== refreshToken) {
@@ -255,6 +260,13 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         role: user.role,
+        ...(payload.hubIssuer
+          ? {
+              hubIssuer: payload.hubIssuer,
+              hubSubject: payload.hubSubject,
+              hubVersion: payload.hubVersion,
+            }
+          : {}),
       };
 
       const newAccessToken = this.jwtService.sign(newPayload);

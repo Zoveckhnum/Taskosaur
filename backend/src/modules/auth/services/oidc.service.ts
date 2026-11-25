@@ -10,6 +10,8 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { SettingsService } from '../../settings/settings.service';
 import { Role, UserSource, UserStatus } from '@prisma/client';
 import { JwtPayload } from '../strategies/jwt.strategy';
+import { CentralAccess, CentralBinding } from './central-access';
+import { randomBytes } from 'node:crypto';
 
 // openid-client v5 is ESM-only — must use dynamic import in CommonJS
 let _oidcModule: typeof import('openid-client') | null = null;
@@ -34,6 +36,8 @@ export class OidcService {
   private readonly logger = new Logger(OidcService.name);
   private client: any = null;
   private lastConfigHash: string = '';
+  private pending = new Map<string, { nonce: string; verifier: string; expires: number }>();
+  private exchanges = new Map<string, { value: Record<string, unknown>; expires: number }>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -78,6 +82,7 @@ export class OidcService {
     configured: boolean;
     providerName: string;
     redirectUri: string;
+    required: boolean;
   }> {
     const config = await this.getOidcConfig();
     const fullyConfigured = !!config.issuerUrl && !!config.clientId && !!config.clientSecret;
@@ -86,6 +91,7 @@ export class OidcService {
       configured: fullyConfigured,
       providerName: config.providerName,
       redirectUri: config.redirectUri,
+      required: new CentralAccess(this.configService).enabled,
     };
   }
 
@@ -105,6 +111,7 @@ export class OidcService {
     try {
       const { Issuer } = await getOidcModule();
       const issuer = await Issuer.discover(config.issuerUrl);
+      if (issuer.issuer !== config.issuerUrl) throw new Error('Unexpected OIDC issuer');
       this.client = new issuer.Client({
         client_id: config.clientId,
         client_secret: config.clientSecret,
@@ -126,19 +133,40 @@ export class OidcService {
     const { generators } = await getOidcModule();
     const state = generators.state();
     const nonce = generators.nonce();
+    const verifier = generators.codeVerifier();
+    for (const [key, value] of this.pending)
+      if (value.expires < Date.now()) this.pending.delete(key);
+    if (this.pending.size >= 2000)
+      throw new ServiceUnavailableException('Too many sign-in attempts');
+    this.pending.set(state, { nonce, verifier, expires: Date.now() + 600000 });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const url: string = oidcClient.authorizationUrl({
       scope: 'openid email profile',
       state,
       nonce,
+      code_challenge: generators.codeChallenge(verifier),
+      code_challenge_method: 'S256',
     });
 
     return { url, state, nonce };
   }
 
-  async handleCallback(code: string, state: string, storedState: string, storedNonce: string) {
-    if (state !== storedState) {
+  async handleCallback(
+    code: string,
+    state: string,
+    storedState: string,
+    storedNonce: string,
+    responseIssuer?: string,
+  ) {
+    const attempt = this.pending.get(state);
+    this.pending.delete(state);
+    if (
+      state !== storedState ||
+      !attempt ||
+      attempt.nonce !== storedNonce ||
+      attempt.expires < Date.now()
+    ) {
       throw new BadRequestException('Invalid SSO state parameter');
     }
 
@@ -150,8 +178,13 @@ export class OidcService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       tokenSet = await oidcClient.callback(
         config.redirectUri,
-        { code, state },
-        { state: storedState, nonce: storedNonce },
+        { code, state, ...(responseIssuer ? { iss: responseIssuer } : {}) },
+        {
+          state: storedState,
+          nonce: storedNonce,
+          code_verifier: attempt.verifier,
+          response_type: 'code',
+        },
       );
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
@@ -180,15 +213,30 @@ export class OidcService {
       throw new BadRequestException('SSO provider did not return a valid user identifier');
     }
 
-    // Find or create user
-    const user = await this.findOrCreateSsoUser(
-      email,
-      firstName,
-      lastName,
-      externalId,
-      config.providerName,
-      emailVerified,
-    );
+    // Central mode binds explicitly to the existing local account. No email linking,
+    // auto-registration or role changes; issuer + subject identify the person.
+    const central = new CentralAccess(this.configService);
+    let binding: CentralBinding = {};
+    let linkedUser: Awaited<ReturnType<typeof this.prisma.user.findUnique>> = null;
+    if (central.enabled) {
+      if (emailVerified !== true || claims.iss !== config.issuerUrl)
+        throw new BadRequestException('Verified central identity required');
+      const access = await central.check(config.issuerUrl, externalId);
+      linkedUser = await this.prisma.user.findUnique({ where: { id: access.localAccountId } });
+      if (!linkedUser || linkedUser.status !== 'ACTIVE' || linkedUser.deletedAt)
+        throw new BadRequestException('The linked account is not active');
+      binding = { hubIssuer: config.issuerUrl, hubSubject: externalId, hubVersion: access.version };
+    }
+    const user =
+      linkedUser ||
+      (await this.findOrCreateSsoUser(
+        email,
+        firstName,
+        lastName,
+        externalId,
+        config.providerName,
+        emailVerified,
+      ));
 
     if (!user) {
       throw new BadRequestException('Failed to create or find SSO user');
@@ -199,6 +247,7 @@ export class OidcService {
       sub: user.id,
       email: user.email,
       role: user.role,
+      ...binding,
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -226,6 +275,23 @@ export class OidcService {
         avatar: user.avatar || undefined,
       },
     };
+  }
+
+  createExchange(value: Record<string, unknown>) {
+    for (const [key, item] of this.exchanges)
+      if (item.expires < Date.now()) this.exchanges.delete(key);
+    if (this.exchanges.size >= 2000)
+      throw new ServiceUnavailableException('Too many sign-in exchanges');
+    const ticket = randomBytes(32).toString('base64url');
+    this.exchanges.set(ticket, { value, expires: Date.now() + 60000 });
+    return ticket;
+  }
+
+  consumeExchange(ticket: string) {
+    const item = this.exchanges.get(ticket);
+    this.exchanges.delete(ticket);
+    if (!item || item.expires < Date.now()) throw new BadRequestException('SSO exchange expired');
+    return item.value;
   }
 
   private async findOrCreateSsoUser(

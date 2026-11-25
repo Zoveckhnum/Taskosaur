@@ -10,6 +10,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { CentralAccess } from '../modules/auth/services/central-access';
+import { JwtPayload } from '../modules/auth/strategies/jwt.strategy';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -32,6 +35,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(EventsGateway.name);
   private connectedUsers = new Map<string, string[]>(); // userId -> socketIds[]
   private userLastSeen = new Map<string, string>();
+  private centralChecks = new Map<string, ReturnType<typeof setInterval>>();
 
   constructor(private jwtService: JwtService) {}
 
@@ -52,7 +56,41 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // Verify JWT token
-      const payload = this.jwtService.verify(token as string);
+      const payload = this.jwtService.verify<JwtPayload>(token as string);
+      const central = new CentralAccess(new ConfigService(process.env));
+      await central.validate(payload, payload.sub);
+      if (central.enabled && !client.connected) return;
+      if (central.enabled) {
+        client.use((_packet, next) => {
+          void (async () => {
+            try {
+              this.jwtService.verify(token as string);
+              await central.validate(payload, payload.sub);
+              next();
+            } catch {
+              client.disconnect(true);
+              next(new Error('Central access revoked'));
+            }
+          })();
+        });
+        let checking = false;
+        const timer = setInterval(() => {
+          void (async () => {
+            if (checking) return;
+            checking = true;
+            try {
+              this.jwtService.verify(token as string);
+              await central.validate(payload, payload.sub);
+            } catch {
+              client.disconnect(true);
+            } finally {
+              checking = false;
+            }
+          })();
+        }, 15000);
+        timer.unref();
+        this.centralChecks.set(client.id, timer);
+      }
       client.userId = payload.sub;
 
       if (!client.userId) {
@@ -99,6 +137,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: AuthenticatedSocket) {
+    const timer = this.centralChecks.get(client.id);
+    if (timer) clearInterval(timer);
+    this.centralChecks.delete(client.id);
     try {
       if (client.userId) {
         // Remove socket from user's connections

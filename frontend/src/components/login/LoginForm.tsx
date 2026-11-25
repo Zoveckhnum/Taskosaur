@@ -30,7 +30,7 @@ export function LoginForm() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(true);
-  const [ssoConfig, setSsoConfig] = useState<{ enabled: boolean; configured: boolean; providerName: string } | null>(null);
+  const [ssoConfig, setSsoConfig] = useState<{ enabled: boolean; configured: boolean; providerName: string; required?: boolean } | null>(null);
 
   useEffect(() => {
     api.get("/auth/registration-status")
@@ -145,7 +145,7 @@ export function LoginForm() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="login-form">
+      {!ssoConfig?.required && <form onSubmit={handleSubmit} className="login-form">
         {/* Email Field */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -255,7 +255,9 @@ export function LoginForm() {
             )}
           </Button>
         </motion.div>
-      </form>
+      </form>}
+
+      {ssoConfig?.required && <p className="login-form-subtitle">Usa tu cuenta del Portal iqualitys para entrar a Proyectos.</p>}
 
       {/* SSO Login Button */}
       {ssoConfig?.enabled && (
@@ -264,7 +266,7 @@ export function LoginForm() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.45 }}
-            className="login-divider-container"
+            className={ssoConfig?.required ? "hidden" : "login-divider-container"}
           >
             <div className="login-divider-text-container">
               <span className="login-divider-text">Or continue with</span>
@@ -282,7 +284,7 @@ export function LoginForm() {
               disabled={!ssoConfig.configured}
               onClick={() => {
                 if (ssoConfig.configured) {
-                  window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/auth/oidc/login`;
+                  window.location.href = '/api/auth/oidc/login';
                 }
               }}
             >
@@ -297,7 +299,7 @@ export function LoginForm() {
       )}
 
       {/* Divider + Sign Up Link (only when registration is enabled) */}
-      {registrationEnabled && (
+      {registrationEnabled && !ssoConfig?.required && (
         <>
           <motion.div
             initial={{ opacity: 0 }}

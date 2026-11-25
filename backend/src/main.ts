@@ -73,7 +73,7 @@ async function bootstrap() {
   const host = appConfig.host || '0.0.0.0';
 
   // Serve static files from public directory (JS, CSS, images, etc.)
-  const publicDir = findPublicDir();
+  const publicDir = process.env.STATIC_PUBLIC_DIR || findPublicDir();
   app.use(express.static(publicDir));
   app.useGlobalInterceptors(new RequestContextInterceptor());
   // Serve Next.js static HTML files and handle dynamic routing

@@ -320,7 +320,7 @@ model ProjectMember {
 model Task {
   id                String       @id @default(uuid()) @db.UniqueIdentifier
   title             String
-  description       String?
+  description       String?      @db.NVarChar(Max)
   type              String     @default("TASK") @db.NVarChar(64)
   priority          String @default("MEDIUM") @db.NVarChar(64)
   taskNumber        Int          @map("task_number")
@@ -1369,3 +1369,26 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
+
+model OfficeOperationReceipt {
+  operationId String @id @map("operation_id") @db.UniqueIdentifier
+  userId String @map("user_id") @db.UniqueIdentifier
+  payloadHash String @map("payload_hash") @db.Char(64)
+  receiptJson String @map("receipt_json") @db.NVarChar(Max)
+  createdAt DateTime @default(now()) @map("created_at")
+  @@map("office_operation_receipts")
+}
+
+model OfficeCustomerCompany {
+ companyId String @id @map("company_id") @db.UniqueIdentifier
+ workspaceId String @unique @map("workspace_id") @db.UniqueIdentifier
+ @@map("office_customer_companies")
+}
+model OfficeCustomerReceipt {
+ requestId String @id @map("request_id") @db.UniqueIdentifier
+ companyId String @map("company_id") @db.UniqueIdentifier
+ payloadHash String @map("payload_hash") @db.Char(64)
+ receiptJson String @map("receipt_json") @db.NVarChar(Max)
+ createdAt DateTime @default(now()) @map("created_at")
+ @@map("office_customer_receipts")
+}

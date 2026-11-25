@@ -58,6 +58,23 @@ export class ProjectsService {
     return user?.role === 'SUPER_ADMIN';
   }
 
+  withinCustomerTransaction(tx: Prisma.TransactionClient): ProjectsService {
+    const scoped = new Proxy(tx, {
+      get(target, key) {
+        if (key === '$transaction')
+          return (work: (client: Prisma.TransactionClient) => unknown) => work(tx);
+        const value: unknown = Reflect.get(target, key);
+        return typeof value === 'function' ? (value.bind(target) as unknown) : value;
+      },
+    }) as unknown as PrismaService;
+    return new ProjectsService(
+      scoped,
+      new AccessControlService(scoped),
+      new ActivityLogService(scoped),
+      this.settingsService,
+    );
+  }
+
   async create(createProjectDto: CreateProjectDto, userId: string): Promise<Project> {
     // Verify workspace exists and user has access
     const workspace = await this.prisma.workspace.findUnique({

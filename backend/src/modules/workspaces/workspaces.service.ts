@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { ActivityType, Role, Workspace } from '@prisma/client';
+import { ActivityType, Role, Workspace, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
@@ -21,6 +21,23 @@ export class WorkspacesService {
     private settingsService: SettingsService,
     private activityLog: ActivityLogService,
   ) {}
+
+  withinCustomerTransaction(tx: Prisma.TransactionClient): WorkspacesService {
+    const scoped = new Proxy(tx, {
+      get(target, key) {
+        if (key === '$transaction')
+          return (work: (client: Prisma.TransactionClient) => unknown) => work(tx);
+        const value: unknown = Reflect.get(target, key);
+        return typeof value === 'function' ? (value.bind(target) as unknown) : value;
+      },
+    }) as unknown as PrismaService;
+    return new WorkspacesService(
+      scoped,
+      new AccessControlService(scoped),
+      this.settingsService,
+      new ActivityLogService(scoped),
+    );
+  }
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string): Promise<Workspace> {
     // getOrgAccess throws ForbiddenException if user is not an org member

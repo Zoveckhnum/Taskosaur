@@ -85,8 +85,8 @@ export function sqlServerSql(text: string): string {
     .replace(/\bDATE\(([^)]+)\)/gi, 'CAST($1 AS date)')
     .replace(/([\w.]+) (ASC|DESC) NULLS LAST/gi, 'CASE WHEN $1 IS NULL THEN 1 ELSE 0 END, $1 $2')
     .replace(
-      /FROM projects WHERE ([^\n]+) FOR UPDATE/gi,
-      'FROM projects WITH (UPDLOCK, HOLDLOCK) WHERE $1',
+      /FROM (projects|organizations|office_customer_receipts) WHERE ([^\n]+) FOR UPDATE/gi,
+      'FROM $1 WITH (UPDLOCK, HOLDLOCK) WHERE $2',
     )
     .replace(/DATE_TRUNC\('day',\s*([^)]*)\)/gi, 'CAST($1 AS date)')
     .replace(/\bLIMIT\s+([^\s]+)\s+OFFSET\s+([^\s;]+)/gi, 'OFFSET $2 ROWS FETCH NEXT $1 ROWS ONLY');

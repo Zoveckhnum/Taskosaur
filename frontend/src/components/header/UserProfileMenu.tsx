@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import {
 import { HiChevronDown, HiCog } from "react-icons/hi";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import ConfirmationModal from "../modals/ConfirmationModal";
+import CentralPortalLink from "./CentralPortalLink";
+import OfficeOperationsDialog from '../office/OfficeOperationsDialog';
 
 interface User {
   id: string;
@@ -41,6 +43,8 @@ export default function UserProfileMenu({
   const [isClient, setIsClient] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [officeOpen,setOfficeOpen]=useState(false);
+  const profileTrigger=useRef<HTMLButtonElement>(null);
   const [avatarSrc, setAvatar] = useState("");
   useEffect(() => {
     setIsClient(true);
@@ -95,7 +99,7 @@ export default function UserProfileMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className={`header-user-trigger ${className}`}>
+          <Button ref={profileTrigger} variant="ghost" className={`header-user-trigger ${className}`}>
             <Avatar className="header-user-avatar">
               <AvatarImage src={avatarSrc} alt={getInitials()} />
               <AvatarFallback className="header-user-avatar-fallback">
@@ -131,6 +135,8 @@ export default function UserProfileMenu({
 
           {/* Menu Items */}
           <div className="header-user-menu-container">
+            <CentralPortalLink />
+            <DropdownMenuItem className="header-user-menu-item" onSelect={()=>requestAnimationFrame(()=>setOfficeOpen(true))}>Oficina · tareas y agenda</DropdownMenuItem>
             {hasOrganizationAccess && (
               <>
                 <DropdownMenuItem asChild>
@@ -162,6 +168,7 @@ export default function UserProfileMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <OfficeOperationsDialog open={officeOpen} onOpenChange={setOfficeOpen} returnFocus={()=>profileTrigger.current?.focus()}/>
       <ConfirmationModal
         isOpen={logoutModalOpen}
         onClose={() => setLogoutModalOpen(false)}
